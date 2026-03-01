@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   //imports: [],
   templateUrl: './countries-list.html',
   styleUrl: './countries-list.scss',
-  standalone:false,
+  standalone:true,
 })
 //this is the main component that will show the list of countries
 //it should be added to countries module (since we're inside the features/countries folder)
