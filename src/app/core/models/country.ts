@@ -5,4 +5,9 @@ export interface Country {
   };
   capital: string[];
   region: string;
+  population: number;
+  flags: {
+    png: string;
+    svg: string;
+  };
 }
