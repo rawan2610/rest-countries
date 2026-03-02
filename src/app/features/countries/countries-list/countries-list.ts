@@ -1,8 +1,11 @@
-import { Component, inject,OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CountriesApiService } from '../../../core/services/countries-api.service';
 import { Country } from '../../../core/models/country';
 //import { CommonModule } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { ToastrService } from '@iqx-limited/ngx-toastr';
+
 @Component({
   selector: 'app-countries-list',
   imports: [DecimalPipe],
@@ -10,37 +13,61 @@ import { DecimalPipe } from '@angular/common';
   styleUrl: './countries-list.scss',
   standalone: true,
 })
+
 //this is the main component that will show the list of countries
-//it should be added to countries module (since we're inside the features/countries folder)
-//but sometimes it is not automatically added to the countries module
-//to check : cat src/app/features/countries/countries-module.ts
-//and to add it : manually import it in countries-module.ts
-
-export class CountriesList implements OnInit{
-  private countriesApi = inject(CountriesApiService);
+export class CountriesList implements OnInit, OnDestroy {
   //It gives your component access to the CountriesApiService so you can use its methods (like getAllCountries()).
+  private countriesApi: CountriesApiService = inject(CountriesApiService);
 
-  countries : Country[]=[];
-  dataLoading = true;
-  error='';
+  countries = signal<Country[]>([]);
+  dataLoading = signal(true);
+  error = signal('');
+  private subscriptions = new Subscription();
+
+  private toastr: ToastrService = inject(ToastrService);
 
   ngOnInit() {
     this.fetchCountries();
   }
 
-   private fetchCountries() {
-    this.countriesApi.getAllCountries().subscribe({
+  private fetchCountries() {
+    // Store the subscription in a variable
+    const countriesSubscription = this.countriesApi.getAllCountries().subscribe({
       next: (data) => {
-        this.countries = data; 
-        this.dataLoading = false;
+        this.countries.set(data);
+        this.dataLoading.set(false);
+        this.toastr.success('Countries loaded successfully!');
         console.log('Countries loaded:', data);
       },
       error: (err) => {
-        this.error = 'Failed to load countries';
-        this.dataLoading = false;
-        console.error('Error:', err);
-      }
+        this.error.set('Failed to load countries. Please try again later.');
+        this.dataLoading.set(false);
+        console.error('Error details:', err);
+      },
     });
+
+    // Add the subscription to the collection
+    this.subscriptions.add(countriesSubscription);
   }
 
+  // Example of adding another subscription later (for search, filter, etc.)
+  // private fetchCountriesByRegion(region: string) {
+  //   const regionSubscription = this.countriesApi.getByRegion(region).subscribe({
+  //     next: (data) => {
+  //       this.countries.set(data);
+  //       this.dataLoading.set(false);
+  //     },
+  //     error: (err) => {
+  //       this.error.set('Failed to load countries by region');
+  //       this.dataLoading.set(false);
+  //     },
+  //   });
+  //   this.subscriptions.add(regionSubscription);
+  // }
+
+  ngOnDestroy() {
+    // This unsubscribes from ALL subscriptions in the collection at once
+    this.subscriptions.unsubscribe();
+    console.log('All subscriptions cleaned up');
+  }
 }

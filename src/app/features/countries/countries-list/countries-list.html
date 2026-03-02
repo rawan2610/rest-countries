@@ -17,19 +17,19 @@
 -->
 
 
-@if (dataLoading) {
+@if (dataLoading()) {
   <div>Loading...</div>
 }
 
-@if (error) {
-  <div class="error">{{ error }}</div>
+@if (error()) {
+  <div class="error">{{ error() }}</div>
 }
 
 
 
-@if (!dataLoading && !error) {
+@if (!dataLoading() && !error()) {
   <div class="countries-grid">
-    @for (country of countries; track country.name.common) {
+    @for (country of countries(); track country.name.common) {
       <div>
         <img [src]="country.flags.png" [alt]="country.name.common" class="flag">
         <h3>{{ country.name.common }}</h3>
