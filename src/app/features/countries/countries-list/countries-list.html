@@ -16,26 +16,24 @@
 </div>
 -->
 
-@if (dataLoading()) {
+<!-- @if (dataLoading()) {
   <div class="loading">Loading...</div>
 }
 
 @if (error()) {
   <div class="error">{{ error() }}</div>
-}
+} -->
 
-@if (!dataLoading() && !error()) {
-  <div class="countries-grid">
-    @for (country of countries(); track country.name.common) {
-      <div class="country-card">
-        <img [src]="country.flags.png" [alt]="country.name.common" class="flag">
-        <div class="card-content">
-          <h3>{{ country.name.common }}</h3>
-          <p><strong>Population:</strong> {{ country.population | number }}</p>
-          <p><strong>Region:</strong> {{ country.region }}</p>
-          <p><strong>Capital:</strong> {{ country.capital[0] || 'N/A' }}</p>
-        </div>
-      </div>
+
+<!-- Parent loops through data -->
+@if (countries().length) {
+  <div class="grid grid-cols-1 gap-8 p-8 md:grid-cols-2 lg:grid-cols-4 lg:max-w-7xl lg:mx-auto">
+     @for (country of countries(); track country.name.common) { 
+      <!-- For each country in the array, the parent creates a new child component and passes ONE country to it. -->
+      <!--app-country-card is the child component , ely bwdelo eahc country-->
+      <!-- Parent passes data DOWN to child -->
+       <!-- [country] -> child ,,, "country" ->value from parent el heya fl @for country<- of countries() -->
+      <app-country-card [country]="country" />
     }
   </div>
 }
